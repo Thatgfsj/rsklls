@@ -1,0 +1,70 @@
+# Build results
+/target
+**/*.rs.bk
+*.pdb
+*.exe
+*.dll
+*.so
+*.dylib
+
+# IDE
+.vscode/
+.idea/
+*.iml
+*.iws
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.python-version
+venv/
+venv37/
+.eggs/
+dist/
+build/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Rust
+Cargo.lock
+**/target
+
+# Go
+*.exe
+*.test
+*.out
+go.sum
+
+# Logs
+*.log
+npm-debug.log*
+yarn-error.log
+yarn-debug.log
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary
+*.tmp
+*.bak
+*.orig
