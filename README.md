@@ -2,53 +2,44 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Rust-Programming-blue?style=for-the-badge&logo=rust" alt="Badge">
-  <img src="https://img.shields.io/badge/OpenClaw-Skill-green?style=for-the-badge&logo=open-source-initiative" alt="Badge">
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="Badge">
+  <img src="https://img.shields.io/badge/Rust-1.70+-brightgreen?style=for-the-badge" alt="Badge">
 </p>
 
 <p align="center">
-  🦞 A通用 Rust 技能框架 (Skill/Plugin Framework) - 跨语言开发、GUI 中文支持、模块化能力复用
+  A universal Rust skills framework for cross-language development, GUI with Chinese support, and modular capability reuse.
 </p>
 
 ---
 
-## 📋 Overview
+## Overview
 
-**rsklls** 是一个通用的 Rust 技能框架，旨在提供可复用的 Rust 开发能力。
+**rsklls** (Rust Skills) is a universal Rust framework providing reusable Rust development capabilities.
 
-### 🎯 Core Positioning
+### Core Positioning
 
-rsklls = **能力定义** + **调度** + **执行**
+rsklls = **Capability Definition** + **Dispatch** + **Execution**
 
-- ⚡ **通用 Skill 框架** - 非 OpenClaw 专属，可被任何 Rust 项目/AI Agent/CLI/GUI 集成
-- 🔄 **跨运行时复用** - 能力模块化，一次编写，多处调用
-- 🪶 **轻量无侵入** - 零运行时依赖，可嵌入任何环境
-- 🌐 **多宿主适配** - OpenClaw、Tauri、其他 Agent、CLI 均可集成
+- Universal skill framework for any Rust project/AI Agent/CLI/GUI
+- Cross-runtime reuse - write once, use everywhere
+- Lightweight with zero runtime dependencies
+- Multi-host support: OpenClaw, Tauri, CLI, custom systems
 
-### ✨ Core Value
+### Use Cases
 
-| Value | Description |
-|-------|-------------|
-| **跨运行时复用** | 能力模块化，一次开发，多场景使用 |
-| **轻量无侵入** | 零额外依赖，可嵌入任何 Rust 项目 |
-| **AI Agent 集成** | 可被任何 AI Agent 调用作为技能 |
-| **多宿主支持** | OpenClaw、Tauri、CLI、自有系统 |
-
-### 📊 Use Cases
-
-- 🤖 **AI Agent 技能** - 作为 Claude/OpenAI 等 AI Agent 的技能库
-- 🔌 **插件系统** - 为应用构建可插拔的能力模块
-- 📦 **模块化业务逻辑** - 跨项目复用通用能力
-- 🖥️ **GUI 应用** - 快速构建支持中文的桌面应用
+- AI Agent skills - use as capability library for Claude, OpenAI, etc.
+- Plugin systems - build pluggable capability modules
+- Modular business logic - reuse capabilities across projects
+- GUI applications - quickly build desktop apps with Chinese support
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Installation
 
 ```bash
-# 添加到你的 Rust 项目
+# Add to your Rust project
 cargo add rsklls
 ```
 
@@ -73,7 +64,7 @@ fn greet_chinese(name: &str) -> String {
 }
 ```
 
-### Use in Python (PyO3)
+### Python Usage (PyO3)
 
 ```python
 from my_rust_lib import greet, add, greet_chinese
@@ -85,7 +76,7 @@ print(greet_chinese("张三"))    # 你好, 张三!
 
 ---
 
-## 📦 Features
+## Features
 
 ### 1. Rust Development Basics
 - Environment setup (all platforms)
@@ -117,38 +108,34 @@ print(greet_chinese("张三"))    # 你好, 张三!
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                        Host                                  │
-│              (OpenClaw / Tauri / CLI / Agent)              │
-└─────────────────────────┬───────────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────────┐
-│                      rsklls Framework                       │
-├─────────────────────────────────────────────────────────────┤
-│  Capability Layer                                           │
-│  ├── Skills (decorated functions)                         │
-│  ├── FFI Bindings (PyO3, cxx, cgo)                       │
-│  └── GUI Components (egui, Tauri)                         │
-├─────────────────────────────────────────────────────────────┤
-│  Core Layer                                                │
-│  ├── Skill Registry                                        │
-│  ├── Execution Engine                                      │
-│  └── Type Converters                                       │
-└─────────────────────────────────────────────────────────────┘
+Host (OpenClaw / Tauri / CLI / Agent)
+         │
+         ▼
+┌─────────────────────────────┐
+│      rsklls Framework       │
+├─────────────────────────────┤
+│  Capability Layer           │
+│  ├── Skills                 │
+│  ├── FFI Bindings          │
+│  └── GUI Components         │
+├─────────────────────────────┤
+│  Core Layer                 │
+│  ├── Skill Registry         │
+│  ├── Execution Engine       │
+│  └── Type Converters        │
+└─────────────────────────────┘
 ```
 
 ---
 
-## 🔧 Integration
+## Integration
 
-### OpenClaw Integration
+### OpenClaw
 
-```yaml
-# openclaw.json
+```json
 {
   "skills": {
     "rsklls": {
@@ -159,10 +146,9 @@ print(greet_chinese("张三"))    # 你好, 张三!
 }
 ```
 
-### Tauri Integration
+### Tauri
 
 ```rust
-// src-tauri/src/main.rs
 use rsklls::ffi::pyo3;
 
 #[tauri::command]
@@ -171,74 +157,90 @@ fn call_skill(skill_name: &str, args: &str) -> String {
 }
 ```
 
-### Standalone CLI
-
-```bash
-# Build as CLI tool
-cargo install rsklls-cli
-
-# Use as command
-rsklls greet --name "张三"
-rsklls add --a 1 --b 2
-```
-
 ---
 
-## 📋 Compatibility
+## Compatibility
 
 | Category | Status |
 |----------|--------|
-| **Rust Version** | 1.70+ |
-| **no_std** | Supported (optional) |
-| **Embedded** | Supported (no_alloc mode) |
-| **WASM** | Planned |
-| **Platforms** | Windows, Linux, macOS |
+| Rust Version | 1.70+ |
+| no_std | Supported (optional) |
+| Embedded | Supported |
+| WASM | Planned |
+| Platforms | Windows, Linux, macOS |
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 rsklls/
-├── SKILL.md              # Main skill documentation
-├── README.md             # This file
-├── README_zh.md          # Chinese version
-├── LICENSE               # MIT License
-├── Cargo.toml            # Workspace config
-├── rustfmt.toml          # Code format config
-├── clippy.toml          # Lint config
 ├── src/
-│   ├── core/            # Core framework
+│   ├── cli.rs           # CLI argument parsing
+│   ├── config.rs        # Configuration loading
+│   ├── skill/
+│   │   ├── mod.rs       # Skill core logic
+│   │   ├── registry.rs  # Skill registration
+│   │   └── executor.rs  # Execution engine
 │   ├── ffi/             # FFI bindings
-│   │   ├── python/      # PyO3
-│   │   └── go/          # cxx/cgo
 │   └── gui/             # GUI components
-└── examples/            # Usage examples
+├── tests/               # Integration tests
+├── benches/             # Benchmarks
+├── Cargo.toml
+├── rustfmt.toml
+├── clippy.toml
+└── .github/
+    └── workflows/
+        └── ci.yml
 ```
 
 ---
 
-## 🗺️ Roadmap
+## Development
 
-- [ ] 更多宿主适配 (LangChain, AutoGen)
-- [ ] FFI 扩展 (Node.js, Ruby)
-- [ ] WASM 支持 (浏览器/无环境)
-- [ ] 插件热加载
-- [ ] 能力市场 (Capability Marketplace)
+### Requirements
+
+- Rust 1.70+
+- Python 3.8+ (for PyO3 examples)
+- Go 1.18+ (for cgo examples)
+
+### Build
+
+```bash
+# Debug
+cargo build
+
+# Release
+cargo build --release
+
+# Run tests
+cargo test
+
+# Run clippy
+cargo clippy -- -D warnings
+
+# Format
+cargo fmt
+```
 
 ---
 
-## 📝 License
+## Roadmap
+
+- [ ] More host adapters (LangChain, AutoGen)
+- [ ] FFI extensions (Node.js, Ruby)
+- [ ] WASM support
+- [ ] Hot reload for plugins
+- [ ] Capability marketplace
+
+---
+
+## License
 
 MIT License - See [LICENSE](./LICENSE) for details.
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
-Welcome! Please submit issues and pull requests.
-
----
-
-*🤖 Powered by OpenClaw Community*
-*🐙 Created by Thatgfsj*
+Contributions are welcome! Please submit issues and pull requests.
