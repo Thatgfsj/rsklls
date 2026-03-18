@@ -1,4 +1,4 @@
-# rust-developer
+# rskills
 
 Rust 程序开发专家技能，涵盖 Rust 核心开发、Python-Rust 互操作 (PyO3)、Go-Rust 互操作 (cgo/cxx)、Java/C-Rust 互操作 (JNI/FFI)。
 
