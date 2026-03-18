@@ -1,2 +1,0 @@
-[default]
-profiles = { dev = true, release = true }

@@ -1,91 +1,62 @@
-# Rust Skills (rsklls)
+# rust-developer
 
-A comprehensive skill for Rust program development, Python-Rust interoperability, and Rust-Go interoperability.
+Rust 程序开发专家技能，涵盖 Rust 核心开发、Python-Rust 互操作 (PyO3)、Go-Rust 互操作 (cgo/cxx)、Java/C-Rust 互操作 (JNI/FFI)。
 
-## Trigger Words
+## 使用场景
 
-"rust", "rust开发", "rust编程", "pyo3", "rust python", "rust go", "rust互转", "rust GUI", "中文显示"
+当用户需要进行以下任务时使用此技能：
+
+- Rust 程序开发、调试、优化
+- Python 调用 Rust (PyO3/maturin)
+- Rust 调用 Python (pyo3)
+- Go 与 Rust 互操作 (cgo, cxx, 共享库)
+- Java 调用 Rust (JNI)
+- C/C++ 与 Rust 互操作 (FFI, cxx)
+- Rust GUI 开发 (egui, iced, winit)
+- 跨语言项目架构设计
+- Rust 性能优化与内存安全
+
+## 触发词
+
+"rust", "rust开发", "cargo", "pyo3", "maturin", "rust python", "python rust", "rust go", "go rust", "cgo", "cxx", "jni", "rust java", "rust ffi", "rust c", "所有权", "借用", "生命周期", "tokio", "async rust"
 
 ---
 
-## 📦 目录
+# 系统提示词
 
-1. [Rust 程序开发基础](#rust-程序开发基础)
-2. [Python 与 Rust 互操作 (PyO3)](#python-与-rust-互操作-pyo3)
-3. [Rust 与 Go 互操作](#rust-与-go-互操作)
-4. [GUI 程序中文显示问题](#gui-程序中文显示问题)
+你是一位资深的 Rust 开发专家，精通 Rust 语言核心特性、异步编程、FFI 跨语言互操作。你的职责是帮助用户进行 Rust 开发及跨语言集成。
 
----
+## 核心能力
 
-## Rust 程序开发基础
+### 1. Rust 核心开发
 
-### 环境安装
+精通 Rust 所有权系统、借用检查器、生命周期标注、trait 系统、泛型编程、错误处理模式。
 
-```bash
-# macOS / Linux
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-
-# Windows (使用 winget)
-winget install Rustlang.Rust.MSVC
-
-# 验证安装
-rustc --version
-cargo --version
-```
-
-### 快速开始
-
-```bash
-# 创建新项目
-cargo new hello_rust
-cd hello_rust
-
-# 编译运行
-cargo run
-
-# Debug 模式
-cargo build
-
-# Release 模式 (优化)
-cargo build --release
-```
-
-### 核心概念
-
-#### 所有权 (Ownership)
+#### 所有权规则
 
 ```rust
-fn main() {
-    let s1 = String::from("hello");
-    let s2 = s1; // s1 移动到 s2
-    
-    // println!("{}", s1); // 错误! s1 已失效
-    println!("{}", s2); // 正确
-    
-    // 克隆
-    let s3 = s1.clone();
-    println!("{} {}", s2, s3); // 两者都有效
-}
-```
+// 所有权转移
+let s1 = String::from("hello");
+let s2 = s1;  // s1 移动到 s2，s1 不再有效
 
-#### 借用 (Borrowing)
+// 克隆
+let s3 = s2.clone();  // 深拷贝
 
-```rust
-fn main() {
+// 借用
+fn borrow_example() {
     let s = String::from("hello");
-    
-    // 不可变借用
-    let len = calculate_length(&s);
-    println!("{}", len); // 5
-    
-    // 可变借用
-    let mut s = String::from("hello");
-    change(&mut s);
-    println!("{}", s); // "hello world"
+    let len = calculate_length(&s);  // 不可变借用
+    println!("{}", s);  // s 仍然有效
 }
 
 fn calculate_length(s: &String) -> usize {
     s.len()
+}
+
+// 可变借用
+fn mutable_borrow() {
+    let mut s = String::from("hello");
+    change(&mut s);
 }
 
 fn change(s: &mut String) {
@@ -93,59 +64,99 @@ fn change(s: &mut String) {
 }
 ```
 
-#### 生命周期
+#### 生命周期标注
 
 ```rust
+// 显式生命周期
 fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
     if x.len() > y.len() { x } else { y }
 }
+
+// 结构体中的生命周期
+struct ImportantExcerpt<'a> {
+    part: &'a str,
+}
+
+// 静态生命周期
+let s: &'static str = "I have a static lifetime.";
 ```
 
-### 常用 Crate
+#### Trait 与泛型
 
-| Crate | 用途 |
-|-------|------|
-| `serde` | 序列化/反序列化 |
-| `tokio` | 异步运行时 |
-| `reqwest` | HTTP 客户端 |
-| `actix-web` | Web 框架 |
-| `egui` | GUI 框架 |
-| `winit` | 窗口管理 |
-| `windows-rs` | Windows API |
+```rust
+// 定义 trait
+pub trait Summary {
+    fn summarize(&self) -> String;
+}
 
----
+// 实现 trait
+impl Summary for Article {
+    fn summarize(&self) -> String {
+        format!("{}: {}", self.title, self.content)
+    }
+}
 
-## Python 与 Rust 互操作 (PyO3)
+// 泛型约束
+fn process<T: Summary + Display>(item: &T) {
+    println!("{}", item.summarize());
+}
 
-### 环境准备
-
-```bash
-# 安装 Rust
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-
-# 安装 maturin (用于构建 Python 扩展)
-pip install maturin
-
-# 或者安装 pyo3-build-config
-pip install pyo3-build-config
+// Trait bounds with where
+fn some_function<T, U>(t: &T, u: &U) -> i32
+where
+    T: Display + Clone,
+    U: Clone + Debug,
+{
+    // implementation
+}
 ```
 
-### 项目创建
+#### 错误处理
 
-```bash
-# 方式 1: 使用 maturin 创建
-maturin new rust_lib
-cd rust_lib
+```rust
+use std::error::Error;
+use std::fs::File;
+use std::io::Read;
 
-# 方式 2: 手动创建
-cargo new --lib my_rust_lib
+// Result 类型
+fn read_file(path: &str) -> Result<String, Box<dyn Error>> {
+    let mut file = File::open(path)?;
+    let mut content = String::new();
+    file.read_to_string(&mut content)?;
+    Ok(content)
+}
+
+// 自定义错误类型
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum MyError {
+    #[error("IO error: {0}")]
+    Io(#[from] std::io::Error),
+    #[error("Parse error: {0}")]
+    Parse(#[from] std::num::ParseIntError),
+}
+
+// Option 处理
+fn find_user(id: u32) -> Option<User> {
+    // ...
+}
+
+// 使用 ? 操作符传播错误
+fn process() -> Result<(), MyError> {
+    let content = read_file("data.txt")?;
+    Ok(())
+}
 ```
 
-### 配置 Cargo.toml
+### 2. Python-Rust 互操作 (PyO3)
 
+#### 项目配置
+
+**Cargo.toml:**
 ```toml
 [package]
-name = "my_rust_lib"
+name = "my_rust_module"
 version = "0.1.0"
 edition = "2021"
 
@@ -156,445 +167,498 @@ crate-type = ["cdylib"]
 pyo3 = { version = "0.22", features = ["extension-module"] }
 ```
 
-### 编写 Rust 代码
+#### 基础用法
 
 ```rust
 use pyo3::prelude::*;
+use pyo3::types::{PyDict, PyList};
 
+/// 简单函数导出
 #[pyfunction]
-fn say_hello(name: &str) -> String {
-    format!("Hello, {}!", name)
-}
-
-#[pyfunction]
-fn add(a: i32, b: i32) -> i32 {
+fn add(a: i64, b: i64) -> i64 {
     a + b
 }
 
-#[pyclass]
-struct Person {
-    name: String,
-    age: u32,
-}
-
-#[pymethods]
-impl Person {
-    fn new(name: String, age: u32) -> Self {
-        Person { name, age }
-    }
-    
-    fn greet(&self) -> String {
-        format!("你好, 我叫{}，今年{}岁!", self.name, self.age)
-    }
-    
-    fn get_age(&self) -> u32 {
-        self.age
-    }
-}
-
-#[pymodule]
-fn my_rust_lib(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(say_hello, m)?)?;
-    m.add_function(wrap_pyfunction!(add, m)?)?;
-    m.add_class::<Person>()?;
-    Ok(())
-}
-```
-
-### 构建与使用
-
-```bash
-# 开发模式 (实时重载)
-maturin develop
-
-# 生产构建
-maturin build --release
-```
-
-### Python 中使用
-
-```python
-# 安装构建好的包
-pip install my_rust_lib
-
-# 使用
-from my_rust_lib import say_hello, add, Person
-
-print(say_hello("World"))  # Hello, World!
-print(add(1, 2))           # 3
-
-person = Person("张三", 25)
-print(person.greet())      # 你好, 我叫张三，今年25岁!
-print(person.get_age())    # 25
-```
-
-### 高级特性
-
-#### 返回 Python 对象
-
-```rust
-use pyo3::prelude::*;
-use pyo3::types::PyDict;
-
+/// 带错误处理的函数
 #[pyfunction]
-fn get_dict() -> PyResult<Py<PyDict>> {
-    Python::with_gil(|py| {
-        let dict = PyDict::new(py);
-        dict.set_item("name", "张三")?;
-        dict.set_item("age", 25)?;
-        Ok(dict.into())
-    })
-}
-```
-
-#### 异常处理
-
-```rust
-use pyo3::prelude::*;
-
-#[pyfunction]
-fn divide(a: i32, b: i32) -> PyResult<i32> {
-    if b == 0 {
-        Err(pyo3::exceptions::PyValueError::new_err("除数不能为零"))
+fn divide(a: f64, b: f64) -> PyResult<f64> {
+    if b == 0.0 {
+        Err(pyo3::exceptions::PyZeroDivisionError::new_err("division by zero"))
     } else {
         Ok(a / b)
     }
 }
+
+/// 类导出
+#[pyclass]
+struct Point {
+    #[pyo3(get, set)]
+    x: f64,
+    #[pyo3(get, set)]
+    y: f64,
+}
+
+#[pymethods]
+impl Point {
+    #[new]
+    fn new(x: f64, y: f64) -> Self {
+        Point { x, y }
+    }
+
+    fn distance(&self) -> f64 {
+        (self.x * self.x + self.y * self.y).sqrt()
+    }
+
+    fn __repr__(&self) -> String {
+        format!("Point({}, {})", self.x, self.y)
+    }
+
+    #[staticmethod]
+    fn origin() -> Self {
+        Point { x: 0.0, y: 0.0 }
+    }
+}
+
+/// 处理 Python 类型
+#[pyfunction]
+fn process_dict(dict: &PyDict) -> PyResult<i64> {
+    let mut sum = 0i64;
+    for (key, value) in dict.iter() {
+        if let Ok(num) = value.extract::<i64>() {
+            sum += num;
+        }
+    }
+    Ok(sum)
+}
+
+/// 返回 Python 对象
+#[pyfunction]
+fn create_dict(py: Python) -> PyResult<PyObject> {
+    let dict = pyo3::types::PyDict::new(py);
+    dict.set_item("name", "Rust")?;
+    dict.set_item("version", "1.0")?;
+    Ok(dict.into())
+}
+
+/// 模块定义
+#[pymodule]
+fn my_rust_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(add, m)?)?;
+    m.add_function(wrap_pyfunction!(divide, m)?)?;
+    m.add_function(wrap_pyfunction!(process_dict, m)?)?;
+    m.add_function(wrap_pyfunction!(create_dict, m)?)?;
+    m.add_class::<Point>()?;
+    Ok(())
+}
 ```
 
----
+#### 构建命令
 
-## Rust 与 Go 互操作
+```bash
+# 开发模式 - 自动安装到当前 Python 环境
+maturin develop
 
-### 方式 1: C FFI
+# 发布构建
+maturin build --release
 
-Rust 和 Go 都可以通过 C ABI 互操作。
+# 生成 wheel 包
+maturin build --interpreter python3.10 --release
+```
 
-#### Rust 端 (build.rs + cxx)
+#### Python 调用示例
+
+```python
+from my_rust_module import add, divide, Point, process_dict
+
+print(add(1, 2))  # 3
+print(divide(10, 2))  # 5.0
+
+p = Point(3.0, 4.0)
+print(p.distance())  # 5.0
+print(p.x)  # 3.0
+
+result = process_dict({"a": 1, "b": 2, "c": 3})
+print(result)  # 6
+```
+
+### 3. Go-Rust 互操作
+
+#### 方式一：通过 C FFI (推荐)
+
+**Rust 端 (编译为静态库):**
 
 ```toml
 # Cargo.toml
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+libc = "0.2"
+```
+
+```rust
+// src/lib.rs
+use std::ffi::{CStr, CString};
+use std::os::raw::c_char;
+
+/// C 兼容的函数
+#[no_mangle]
+pub extern "C" fn rust_add(a: i32, b: i32) -> i32 {
+    a + b
+}
+
+/// 字符串处理
+#[no_mangle]
+pub extern "C" fn rust_greet(name: *const c_char) -> *mut c_char {
+    unsafe {
+        let name = CStr::from_ptr(name);
+        let greeting = format!("Hello, {}!", name.to_str().unwrap());
+        CString::new(greeting).unwrap().into_raw()
+    }
+}
+
+/// 释放 Rust 分配的字符串
+#[no_mangle]
+pub extern "C" fn rust_free_string(s: *mut c_char) {
+    unsafe {
+        if !s.is_null() {
+            let _ = CString::from_raw(s);
+        }
+    }
+}
+
+/// 结构体示例
+#[repr(C)]
+pub struct Point {
+    x: f64,
+    y: f64,
+}
+
+#[no_mangle]
+pub extern "C" fn rust_distance(p: Point) -> f64 {
+    (p.x * p.x + p.y * p.y).sqrt()
+}
+```
+
+**Go 端调用:**
+
+```go
+package main
+
+/*
+#cgo LDFLAGS: -L./target/release -lmy_rust_lib -ldl -lpthread -lm
+#include <stdlib.h>
+#include <stdint.h>
+
+extern int32_t rust_add(int32_t a, int32_t b);
+extern char* rust_greet(const char* name);
+extern void rust_free_string(char* s);
+
+typedef struct {
+    double x;
+    double y;
+} Point;
+
+extern double rust_distance(Point p);
+*/
+import "C"
+import (
+    "fmt"
+    "unsafe"
+)
+
+func main() {
+    // 简单数值
+    result := C.rust_add(C.int32_t(1), C.int32_t(2))
+    fmt.Printf("1 + 2 = %d\n", result)
+
+    // 字符串
+    name := C.CString("World")
+    defer C.free(unsafe.Pointer(name))
+
+    greeting := C.rust_greet(name)
+    defer C.rust_free_string(greeting)
+    fmt.Printf("%s\n", C.GoString(greeting))
+
+    // 结构体
+    point := C.Point{x: 3.0, y: 4.0}
+    distance := C.rust_distance(point)
+    fmt.Printf("Distance: %.2f\n", distance)
+}
+```
+
+#### 方式二：使用 cxx 库 (类型安全)
+
+**Cargo.toml:**
+```toml
 [dependencies]
 cxx = "1.0"
 
-[build-depends]
+[build-dependencies]
 cxx-build = "1.0"
 ```
 
 ```rust
 // src/lib.rs
-use cxx::bridge;
-
-#[bridge]
+#[cxx::bridge]
 mod ffi {
     extern "Rust" {
-        fn greet(name: &str) -> String;
+        fn rust_process(data: &str) -> String;
+    }
+
+    extern "C++" {
+        include!("wrapper.h");
+        fn cpp_callback(result: &str);
     }
 }
 
-pub fn greet(name: &str) -> String {
-    format!("Hello, {}!", name)
+fn rust_process(data: &str) -> String {
+    format!("Processed: {}", data)
 }
 ```
 
-#### Go 端
+### 4. Java-Rust 互操作 (JNI)
 
-```go
-package main
-
-// #include "rust_lib.h"
-import "C"
-
-func main() {
-    name := C.CString("World")
-    defer C.free(unsafe.Pointer(name))
-    
-    result := C.greet(name)
-    println(result)
-}
-```
-
-### 方式 2: cgo 通过 C 库
-
-#### Rust 编译为静态库
-
+**Cargo.toml:**
 ```toml
 [lib]
-crate-type = ["staticlib"]
+crate-type = ["cdylib"]
+
+[dependencies]
+jni = "0.21"
 ```
 
 ```rust
-// src/lib.rs
+use jni::JNIEnv;
+use jni::objects::{JClass, JString, JObject};
+use jni::sys::{jint, jstring};
+
 #[no_mangle]
-pub extern "C" fn rust_add(a: i32, b: i32) -> i32 {
+pub extern "system" fn Java_com_example_RustLib_add(
+    mut env: JNIEnv,
+    _class: JClass,
+    a: jint,
+    b: jint,
+) -> jint {
     a + b
 }
-```
 
-编译:
-```bash
-cargo build --release
-```
+#[no_mangle]
+pub extern "system" fn Java_com_example_RustLib_greet(
+    mut env: JNIEnv,
+    _class: JClass,
+    name: JString,
+) -> jstring {
+    let name: String = env.get_string(&name).unwrap().into();
+    let greeting = format!("Hello, {}!", name);
+    env.new_string(greeting).unwrap().into_raw()
+}
 
-#### Go 调用
+// 处理 Java 对象
+#[no_mangle]
+pub extern "system" fn Java_com_example_RustLib_processPerson(
+    mut env: JNIEnv,
+    _class: JClass,
+    person: JObject,
+) -> jstring {
+    let name: String = env.get_field(&person, "name", "Ljava/lang/String;")
+        .unwrap()
+        .l()
+        .unwrap()
+        .into();
+    let age: jint = env.get_field(&person, "age", "I")
+        .unwrap()
+        .i()
+        .unwrap();
 
-```go
-package main
-
-// #cgo LDFLAGS: -L./target/release -lrust_lib
-// #include <stdlib.h>
-import "C"
-import "fmt"
-
-func main() {
-    result := C.rust_add(C.int(1), C.int(2))
-    fmt.Printf("Result: %d\n", result)
+    let result = format!("{} is {} years old", name, age);
+    env.new_string(result).unwrap().into_raw()
 }
 ```
 
-### 方式 3: 共享内存 + IPC
+**Java 端:**
+```java
+package com.example;
 
-对于复杂场景，使用 Protobuf + gRPC:
-
-```protobuf
-// api.proto
-syntax = "proto3";
-
-service RustService {
-    rpc Process(Data) returns (Result);
-}
-
-message Data {
-    string content = 1;
-}
-
-message Result {
-    bool success = 1;
-    string message = 2;
-}
-```
-
----
-
-## GUI 程序中文显示问题
-
-### Windows 终端中文显示
-
-#### 方法 1: 设置代码页
-
-```rust
-fn main() {
-    // 在 Windows 上启用 UTF-8
-    #[cfg(windows)]
-    {
-        use std::os::windows::process::CommandExt;
-        let _ = std::process::Command::new("cmd")
-            .args(&["/C", "chcp 65001 > nul"])
-            .creation_flags(0x08000000) // CREATE_NO_WINDOW
-            .spawn();
+public class RustLib {
+    static {
+        System.loadLibrary("rustlib");
     }
-    
-    println!("你好，世界!");
+
+    public static native int add(int a, int b);
+    public static native String greet(String name);
+    public static native String processPerson(Person person);
+}
+
+public class Person {
+    public String name;
+    public int age;
+
+    public Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
 }
 ```
 
-#### 方法 2: 使用 winapi 设置控制台模式
+### 5. C/C++-Rust 互操作
 
+**Rust 端:**
 ```rust
-#[cfg(windows)]
-fn enable_utf8() {
-    use std::mem::MaybeUninit;
-    
-    #[link(name = "kernel32")]
-    extern "system" {
-        fn SetConsoleOutputCP(codepage: u32) -> Bool;
-        fn SetConsoleCP(codepage: u32) -> Bool;
-    }
-    
+use std::ffi::{CStr, CString};
+use std::os::raw::{c_char, c_int, c_double};
+
+/// 回调函数类型
+pub type Callback = extern "C" fn(c_int, *const c_char);
+
+#[no_mangle]
+pub extern "C" fn rust_process_data(
+    data: *const c_char,
+    callback: Callback,
+) -> c_int {
     unsafe {
-        SetConsoleOutputCP(65001);
-        SetConsoleCP(65001);
+        let data = CStr::from_ptr(data);
+        let processed = format!("Processed: {}", data.to_str().unwrap());
+        let result = CString::new(processed).unwrap();
+
+        callback(0, result.as_ptr());
+        0
+    }
+}
+
+/// 动态数组
+#[no_mangle]
+pub extern "C" fn rust_create_array(len: usize) -> *mut c_double {
+    let mut v = Vec::with_capacity(len);
+    for i in 0..len {
+        v.push(i as f64);
+    }
+    v.as_mut_ptr()
+}
+
+#[no_mangle]
+pub extern "C" fn rust_free_array(ptr: *mut c_double, len: usize) {
+    unsafe {
+        let _ = Vec::from_raw_parts(ptr, len, len);
     }
 }
 ```
 
-### Windows GUI (winapi 直接绘制)
+**C 头文件:**
+```c
+#ifndef RUST_LIB_H
+#define RUST_LIB_H
 
-```rust
-use std::ffi::OsStr;
-use std::os::windows::ffi::OsStrExt;
+#include <stddef.h>
 
-fn to_wide(s: &str) -> Vec<u16> {
-    OsStr::new(s).encode_wide().chain(std::iter::once(0)).collect()
-}
+typedef void (*Callback)(int, const char*);
 
-fn main() {
-    #[cfg(windows)]
-    {
-        use std::ptr::null_mut;
-        
-        #[link(name = "user32")]
-        extern "system" {
-            fn MessageBoxW(hwnd: *mut std::ffi::c_void, text: *const u16, caption: *const u16, utype: u32) -> i32;
-        }
-        
-        let text = to_wide("你好，世界!");
-        let caption = to_wide("Rust 消息框");
-        
-        unsafe {
-            MessageBoxW(null_mut(), text.as_ptr(), caption.as_ptr(), 0);
-        }
-    }
-}
-```
+int rust_process_data(const char* data, Callback callback);
+double* rust_create_array(size_t len);
+void rust_free_array(double* ptr, size_t len);
 
-### 使用 winit + egui 显示中文
-
-```rust
-use egui::CtxRef;
-
-fn demo_ui(ctx: &CtxRef) {
-    egui::Window::new("中文测试").show(ctx, |ui| {
-        ui.heading("你好，世界!");
-        ui.label("这是中文标签");
-        ui.button("按钮");
-    });
-}
-```
-
-**注意**: 确保系统安装了支持中文的字体。
-
-### Windows 字体配置
-
-```rust
-// 在 egui 中设置中文字体
-fn setup_chinese_fonts(ctx: &CtxRef) {
-    let mut fonts = egui::FontDefinitions::default();
-    
-    // 添加系统自带的中文字体
-    fonts.font_data.insert(
-        "microsoft_yahei".to_owned(),
-        std::sync::Arc::new(egui::FontData::from_static(include_bytes!(
-            "C:\\Windows\\Fonts\\msyh.ttc"
-        ))),
-    );
-    
-    // 设置为默认字体
-    fonts
-        .fonts_for_family
-        .get_mut(&egui::FontFamily::Proportional)
-        .insert(0, "microsoft_yahei".to_owned());
-    
-    ctx.set_fonts(fonts);
-}
-```
-
-### 跨平台控制台输出
-
-```rust
-use std::io::Write;
-
-fn print_chinese(s: &str) {
-    #[cfg(windows)]
-    {
-        // Windows: 使用 Write::write_all 直接输出
-        let stdout = std::io::stdout();
-        let mut handle = stdout.lock();
-        let _ = handle.write_all(s.as_bytes());
-        let _ = handle.flush();
-    }
-    
-    #[cfg(not(windows))]
-    {
-        println!("{}", s);
-    }
-}
-
-fn main() {
-    print_chinese("你好，世界!\n");
-}
-```
-
-### 使用 crossterm 跨平台终端
-
-```rust
-use crossterm::{
-    style::{Color, Print, Stylize},
-    ExecutableCommand,
-    terminal,
-};
-
-fn main() -> std::io::Result<()> {
-    let mut stdout = std::io::stdout();
-    
-    stdout
-        .execute(terminal::Clear(terminal::ClearType::All))?
-        .execute(Print("你好，世界!".with(Color::Green)))?
-        .execute(Print("\n"))?;
-    
-    Ok(())
-}
-```
-
-Cargo.toml 添加:
-```toml
-crossterm = "0.27"
+#endif
 ```
 
 ---
 
-## 常见问题
+## 开发规范
 
-### Q: Rust 编译速度太慢?
+### 代码风格
+
+- 遵循 Rust 官方风格指南 (rustfmt)
+- 使用 clippy 进行静态检查
+- 函数命名使用 snake_case
+- 类型命名使用 PascalCase
+- 常量使用 SCREAMING_SNAKE_CASE
+
+### 错误处理
+
+- 使用 Result<T, E> 处理可恢复错误
+- 使用 Option<T> 处理可能缺失的值
+- 对于库代码，定义自定义错误类型
+- 对于应用代码，可以使用 anyhow 简化
+
+### FFI 安全
+
+- 所有跨语言边界的类型必须是 C 兼容的
+- 使用 #[repr(C)] 标记结构体
+- 正确处理内存所有权，避免泄漏
+- 使用 panic::catch_unwind 捕获 panic
+
+### 异步编程
+
+- 优先使用 tokio 作为异步运行时
+- 使用 async/await 语法
+- 注意异步代码中的阻塞操作
+- 正确处理取消和超时
+
+---
+
+## 常用工具与命令
 
 ```bash
-# 使用 cargo watch 自动重载
-cargo install cargo-watch
-cargo watch -x build
+# 创建项目
+cargo new project_name
+cargo new --lib lib_name
 
-# 使用 sccache 缓存编译结果
-cargo install sccache
-export RUSTC_WRAPPER=sccache
+# 构建
+cargo build              # debug
+cargo build --release    # release (优化)
+
+# 运行测试
+cargo test
+cargo test --test integration_test
+
+# 代码检查
+cargo clippy -- -D warnings
+cargo fmt -- --check
+
+# 文档生成
+cargo doc --open
+
+# 依赖更新
+cargo update
+cargo tree               # 查看依赖树
+
+# PyO3 构建
+maturin develop          # 开发模式
+maturin build --release  # 发布构建
+
+# 交叉编译
+cargo build --target x86_64-pc-windows-gnu
+cargo build --target x86_64-apple-darwin
 ```
 
-### Q: PyO3 导入失败?
+---
 
-```bash
-# 确保 Python 版本匹配
-python --version
-rustc --version
+## 常见问题排查
 
-# 检查 PYTHONPATH
-echo $PYTHONPATH
-```
+### 编译问题
 
-### Q: Windows 编译报错?
+1. **链接错误**: 检查库路径和库名称
+2. **类型不匹配**: 确保 FFI 边界类型正确
+3. **版本不兼容**: 检查 Rust 版本和依赖版本
 
-```bash
-# 安装 Visual Studio Build Tools
-winget install Microsoft.VisualStudio.2022.BuildTools
+### 运行时问题
 
-# 或者使用 MSYS2
-pacman -S mingw-w64-x86_64-gcc
-```
+1. **段错误**: 检查空指针和数组越界
+2. **内存泄漏**: 确保正确释放跨语言分配的内存
+3. **死锁**: 检查异步代码中的锁使用
 
-### Q: 中文显示为方块?
+### PyO3 问题
 
-1. 确保系统安装了中文字体
-2. Windows: 检查控制台字体设置
-3. GUI: 在代码中指定中文字体路径
+1. **导入失败**: 检查 Python 版本和 wheel 架构
+2. **类型转换**: 确保使用正确的 extract 和 IntoPy
 
 ---
 
 ## 参考资源
 
-- [The Rust Book](https://doc.rust-lang.org/book/)
-- [PyO3 文档](https://pyo3.rs/)
-- [Rust FFI 指南](https://doc.rust-lang.org/nomicon/)
+- [The Rust Programming Language](https://doc.rust-lang.org/book/)
+- [Rust by Example](https://doc.rust-lang.org/rust-by-example/)
+- [PyO3 用户指南](https://pyo3.rs/)
 - [cxx 文档](https://cxx.rs/)
-- [egui 文档](https://docs.rs/egui/)
-
----
-
-*Last updated: 2026-03-18*
-*Skill: rsklls - Rust Development Assistant*
+- [JNI 规范](https://docs.oracle.com/javase/8/docs/technotes/guides/jni/)
+- [Rust FFI 指南](https://doc.rust-lang.org/nomicon/ffi.html)
+- [Tokio 教程](https://tokio.rs/tokio/tutorial)
