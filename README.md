@@ -1,4 +1,4 @@
-# rust-developer
+# rust-skills
 
 Rust 程序开发专家技能，用于 Claude Code 等 AI Agent。
 
