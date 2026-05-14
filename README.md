@@ -1,12 +1,22 @@
 # rskills
 
-Rust + 跨语言互操作专家技能，面向 AI 编程助手 (Claude Code, Cline, OpenClaw 等)。
+Rust + 跨语言互操作专家技能，面向 AI 编程助手 (Claude Code, Cline, OpenClaw, OpenCode 等)。
 
 ## 项目定位
 
 **面向 AI 编程助手的 Rust + FFI 技能包**
 
 帮助 AI Agent 处理 Rust 开发及跨语言集成任务。
+
+## 平台兼容
+
+| 平台 | 状态 | 说明 |
+|------|------|------|
+| **Claude Code** | ✅ 完整支持 | 复制到 `~/.claude/skills/` |
+| **Cline** | ✅ 完整支持 | 复制到 `~/.cline/skills/` |
+| **OpenClaw** | ✅ 完整支持 | 沙箱安全部署、交叉编译 |
+| **OpenCode** | ✅ 完整支持 | 适配 skill tool 调用格式 |
+| **Generic Agent** | ✅ 兼容 | 标准 SKILL.md 格式 |
 
 ## 功能概览
 
@@ -22,14 +32,13 @@ Rust + 跨语言互操作专家技能，面向 AI 编程助手 (Claude Code, Cli
 
 ## 快速开始
 
-### 安装到 Claude Code
+### 安装到 Claude Code / OpenCode
 
 ```bash
-# 方法 1: 复制到 skills 目录
+# 复制到 skills 目录
 cp -r rskills ~/.claude/skills/
-
-# 方法 2: 符号链接
-ln -s $(pwd)/rskills ~/.claude/skills/
+# 或
+cp -r rskills ~/.opencode/skills/
 ```
 
 ### 安装到 Cline
@@ -37,6 +46,29 @@ ln -s $(pwd)/rskills ~/.claude/skills/
 ```bash
 # 复制到 Cline skills 目录
 cp -r rskills ~/.cline/skills/
+```
+
+### 安装到 OpenClaw
+
+```bash
+# 使用 clawdhub 安装
+clawdhub install rskills
+
+# 或手动复制
+cp -r rskills ~/.claw/skills/
+```
+
+### OpenClaw 部署示例
+
+```bash
+# 交叉编译 Rust 二进制
+./scripts/build_for_openclaw.sh x86_64 my_rust_app
+
+# 本地测试
+./scripts/openclaw_test.sh ./dist/my_rust_app
+
+# 部署到 OpenClaw 沙箱
+# 参考 references/openclaw-integration.md
 ```
 
 ### 初始化新 FFI 项目
@@ -93,7 +125,38 @@ rskills/
 
 在对话中使用以下词汇触发此技能:
 
-`rust`, `cargo`, `pyo3`, `maturin`, `python rust`, `rust python`, `rust go`, `go rust`, `cgo`, `cxx`, `jni`, `rust java`, `rust ffi`, `所有权`, `借用`, `生命周期`, `tokio`, `openclaw`, `claw`
+`rust`, `cargo`, `pyo3`, `maturin`, `python rust`, `rust python`, `rust go`, `go rust`, `cgo`, `cxx`, `jni`, `rust java`, `rust ffi`, `所有权`, `借用`, `生命周期`, `tokio`, `openclaw`, `claw`, `opencode`, `clawdbot`
+
+## OpenClaw 专用能力
+
+```bash
+# 交叉编译 (x86_64 / aarch64)
+./scripts/build_for_openclaw.sh x86_64 my_app
+./scripts/build_for_openclaw.sh aarch64 my_app
+
+# 本地沙箱测试
+./scripts/openclaw_test.sh <binary_path> [timeout]
+
+# FFI 安全检查
+python scripts/check_ffi_safety.py <path>
+
+# 生成 C++ 头文件
+./scripts/generate_bindings.sh
+```
+
+## OpenCode / OpenClaw 集成说明
+
+当 AI Agent 使用 skill tool 加载此技能时:
+1. AI 首先读取精简的 `SKILL.md` 获取核心指令
+2. 根据需要查阅 `references/` 下的详细文档
+3. 可执行 `scripts/` 中的自动化脚本
+4. 可运行 `tests/` 中的集成测试验证
+
+**OpenClaw 安全特性:**
+- 所有 unsafe 代码标注 `// SAFETY:` 注释
+- 跨语言边界使用 `panic::catch_unwind` 保护
+- 支持静态链接 (`x86_64-unknown-linux-musl`)
+- 可打包为 distroless/scratch 镜像
 
 ## 自动化命令
 
@@ -137,6 +200,14 @@ fn rust_process(data: &str) -> String {
 1. 在 `examples/` 下创建新目录
 2. 包含 `Cargo.toml`, `src/lib.rs`, `README.md`, `build.sh`
 3. 更新 `references/ffi-overview.md` 添加方案对比
+
+### OpenCode / OpenClaw 兼容性要求
+
+- SKILL.md 使用标准格式，支持 skill tool 解析
+- references/ 目录结构支持渐进式加载
+- scripts/ 使用 POSIX 兼容的 shell 脚本
+- Python 脚本使用 Python 3.6+ 语法
+- 所有 unsafe 块必须包含 SAFETY 注释
 
 ### 提交脚本
 
