@@ -1,0 +1,11 @@
+[package]
+name = "cxx-vector"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+cxx = "=1.0.146"
+anyhow = "=1.0.86"
+
+[build-dependencies]
+cxx-build = "=1.0.146"

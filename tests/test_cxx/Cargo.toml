@@ -1,0 +1,10 @@
+[package]
+name = "test_cxx"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+cxx = "=1.0.146"
+
+[build-dependencies]
+cxx-build = "=1.0.146"
